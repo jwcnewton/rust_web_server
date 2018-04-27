@@ -1,0 +1,4 @@
+[[package]]
+name = "rust_web_serve"
+version = "0.1.0"
+
