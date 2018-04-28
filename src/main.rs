@@ -1,7 +1,9 @@
 use std::net::TcpListener;
 use std::net::TcpStream;
-use std::io::prelude::*;
 use std::fs::File;
+use std::path::Path;
+use std::io::prelude::*;
+use std::error::Error;
 
 pub mod reqlib;
 
@@ -40,12 +42,16 @@ fn handle_not_found(mut stream: TcpStream, reqest:reqlib::HttpReq){
         stream.write(&res.as_bytes()).unwrap(); 
         stream.flush().unwrap();
     } else {
-        println!("{}", &reqest.uri.clone());
-
         let index_page_content = get_page_resource(reqest.uri);
-        let res = format!("HTTP/1.1 200 Ok \r\n\r\n {}", index_page_content);
-        stream.write(&res.as_bytes()).unwrap(); 
-        stream.flush().unwrap();
+        if index_page_content.len() == 0 {
+            let res = format!("HTTP/1.1 404 \r\n\r\n {}", index_page_content);
+            stream.write(&res.as_bytes()).unwrap(); 
+            stream.flush().unwrap();
+        } else {
+            let res = format!("HTTP/1.1 200 Ok \r\n\r\n {}", index_page_content);
+            stream.write(&res.as_bytes()).unwrap(); 
+            stream.flush().unwrap();
+        }
     }
 }
 
@@ -64,16 +70,22 @@ fn handle_index(mut stream: TcpStream, reqest: reqlib::HttpReq){
     }
 }
 
-fn get_page_resource(page_ref: String)->String {
-    let mut f = File::open(format!(".{}",page_ref)).unwrap();
-    let mut contents = String::new();
-    f.read_to_string(&mut contents).unwrap();
-    return contents;
-}
-
 fn get_page_content(page_ref: &'static str)->String {
     let mut f = File::open(page_ref).unwrap();
     let mut contents = String::new();
     f.read_to_string(&mut contents).unwrap();
     return contents;
+}
+
+fn get_page_resource(page_ref: String)->String {
+    let mut file = match File::open(format!(".{}",page_ref)) {
+        Err(_) => (return "".to_string()),
+        Ok(file) => file,
+    };
+    let mut s = String::new();
+    match file.read_to_string(&mut s) {
+        Err(_) => s = "".to_string(),
+        Ok(_) => (),
+    }
+    return s;
 }
