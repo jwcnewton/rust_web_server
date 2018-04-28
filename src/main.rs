@@ -1,9 +1,7 @@
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::fs::File;
-use std::path::Path;
 use std::io::prelude::*;
-use std::error::Error;
 
 pub mod reqlib;
 
