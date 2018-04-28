@@ -6,13 +6,10 @@ pub struct HttpReq {
 
 pub fn str_to_request(req:String)->HttpReq {
     let request_lf = req.lines().nth(0).unwrap().to_string();
-    let uri = get_request_line_uri(&request_lf);
-    let verb = get_request_line_verb(&request_lf);
-    let content_type = get_request_line_type(&req.to_string());
-    return HttpReq{ 
-        uri: uri,
-        verb: verb,
-        res_type: content_type
+    return HttpReq { 
+        uri: get_request_line_uri(&request_lf),
+        verb: get_request_line_verb(&request_lf),
+        res_type: get_request_line_type(&req.to_string())
     };
 }
 
